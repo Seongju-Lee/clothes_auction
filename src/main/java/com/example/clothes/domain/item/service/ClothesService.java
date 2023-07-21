@@ -2,6 +2,7 @@ package com.example.clothes.domain.item.service;
 
 import com.example.clothes.domain.item.dao.ClothesRepository;
 import com.example.clothes.domain.item.domain.Clothes;
+import com.example.clothes.domain.item.domain.ClothesBuilder;
 import com.example.clothes.domain.item.domain.ClothesCategory;
 import com.example.clothes.domain.item.dto.ClothesResponse;
 import com.example.clothes.domain.item.dto.ClothesRequest;
@@ -25,13 +26,7 @@ public class ClothesService {
     // 저장
     public ClothesResponse save(ClothesRequest request) {
         User user = userRepository.findById(request.sellerId()).get();
-        Clothes clothes = Clothes.builder()
-                .seller(user)
-                .name(request.name())
-                .description(request.description())
-                .imgSrc(request.imgSrc())
-                .category(request.category())
-                .build();
+        Clothes clothes = new Clothes(user, request.name(), request.description(), request.imgSrc(), request.category());
         Clothes savedClothes = clothesRepository.save(clothes);
         return ClothesResponse.fromEntity(savedClothes);
     }
@@ -45,15 +40,13 @@ public class ClothesService {
     public ClothesResponse update(ClothesUpdateRequest request, Long clothesId) {
 
         Clothes clothes = clothesRepository.findById(clothesId).get();
-        Clothes updatedClothes = clothesRepository.save(
-                Clothes.builder()
-                        .name(request.name() == null ? clothes.getName() : request.name())
-                        .description(request.description() == null ? clothes.getDescription() : request.description())
-                        .imgSrc(request.imgSrc() == null ? clothes.getImgSrc() : request.imgSrc())
-                        .category(request.category() == null ? clothes.getCategory() : request.category())
-                        .build()
-        );
-        return ClothesResponse.fromEntity(updatedClothes);
+        Clothes updatedClothes = new ClothesBuilder()
+                .name(request.name())
+                .description(request.description())
+                .imgSrc(request.imgSrc())
+                .category(request.category())
+                .build(clothes);
+        return ClothesResponse.fromEntity(clothesRepository.save(updatedClothes));
     }
 
     // 카테고리로 조회
