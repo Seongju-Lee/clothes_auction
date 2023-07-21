@@ -4,7 +4,8 @@ public enum AuctionStatus {
 
     WAITING("시작전 대기"),
     IN_PROGRESS("진행중"),
-    COMPLETED("낙찰");
+    COMPLETED("낙찰"),
+    CANCEL("취소");
 
     private final String status;
 

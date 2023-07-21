@@ -1,8 +1,6 @@
 package com.example.clothes.domain.auction.domain;
 
 import com.example.clothes.domain.item.domain.Clothes;
-import com.example.clothes.domain.user.domain.User;
-import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -10,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
+
 public class Auction {
 
     @Id
@@ -29,9 +27,35 @@ public class Auction {
     private Long currentPrice;
 
     @Column(name = "auction_start_time")
+
     private LocalDateTime startTime;
 
     @Column(name = "auction_status")
     @Enumerated(EnumType.STRING)
-    private AuctionStatus status;
+    private AuctionStatus status = AuctionStatus.WAITING;
+
+    protected Auction() {
+    }
+
+    public Auction(Clothes clothes, Long startPrice, LocalDateTime startTime) {
+        this.clothes = clothes;
+        this.startPrice = startPrice;
+        this.startTime = startTime;
+    }
+
+    public Auction update(AuctionBuilder builder) {
+        if (builder.getStatus() != null) {
+            this.status = builder.getStatus();
+        }
+        if (builder.getStartPrice() != null) {
+            this.startPrice = builder.getStartPrice();
+        }
+        if (builder.getCurrentPrice() != null) {
+            this.currentPrice = builder.getCurrentPrice();
+        }
+        if (builder.getStartTime() != null) {
+            this.startTime = builder.getStartTime();
+        }
+        return this;
+    }
 }
