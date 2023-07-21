@@ -13,7 +13,7 @@ public record ClothesResponse(String name, String description, String imgSrc) {
 
     public static List<ClothesResponse> fromEntities(List<Clothes> manyClothes) {
         return manyClothes.stream()
-                .map(clothes -> new ClothesResponse(clothes.getName(), clothes.getDescription(), clothes.getImgSrc()))
+                .map(ClothesResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 }
