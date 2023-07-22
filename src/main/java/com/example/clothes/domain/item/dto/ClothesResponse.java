@@ -5,7 +5,11 @@ import com.example.clothes.domain.item.domain.Clothes;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record ClothesResponse(String name, String description, String imgSrc) {
+public record ClothesResponse(
+        String name,
+        String description,
+        String imgSrc
+) {
 
     public static ClothesResponse fromEntity(Clothes clothes) {
         return new ClothesResponse(clothes.getName(), clothes.getDescription(), clothes.getImgSrc());
@@ -13,7 +17,7 @@ public record ClothesResponse(String name, String description, String imgSrc) {
 
     public static List<ClothesResponse> fromEntities(List<Clothes> manyClothes) {
         return manyClothes.stream()
-                .map(clothes -> new ClothesResponse(clothes.getName(), clothes.getDescription(), clothes.getImgSrc()))
+                .map(ClothesResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 }
