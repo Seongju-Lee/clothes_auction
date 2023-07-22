@@ -28,6 +28,7 @@ public class ClothesService {
         Clothes savedClothes = clothesRepository.save(
                 new Clothes(seller, request.name(), request.description(), request.imgSrc(), request.category())
         );
+
         return ClothesResponse.fromEntity(savedClothes);
     }
 
@@ -44,6 +45,7 @@ public class ClothesService {
                 .imgSrc(request.imgSrc())
                 .category(request.category())
                 .buildToUpdate(clothes);
+
         return ClothesResponse.fromEntity(clothesRepository.save(updatedClothes));
     }
 
