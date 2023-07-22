@@ -39,15 +39,4 @@ public class Bid {
         this.price = price;
         this.bidTime = bidTime;
     }
-
-    @Override
-    public String toString() {
-        return "Bid{" +
-                "bidId=" + bidId +
-                ", bidder=" + bidder +
-                ", auction=" + auction +
-                ", price=" + price +
-                ", bidTime=" + bidTime +
-                '}';
-    }
 }
