@@ -31,14 +31,19 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions")
-    public ResponseEntity<List<AuctionResponse>> findAll(@RequestParam(required = false, name = "status") List<AuctionStatus> statuses) {
+    public ResponseEntity<List<AuctionResponse>> findAll(
+            @RequestParam(required = false, name = "status") List<AuctionStatus> statuses
+    ) {
         List<AuctionResponse> response =
                 (statuses == null ? auctionService.findAll() : auctionService.findByStatuses(statuses));
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/auctions/{auctionId}")
-    public ResponseEntity<AuctionResponse> update(@RequestBody AuctionUpdateRequest request, @PathVariable Long auctionId) {
+    @PatchMapping("/auctions/{auctionId}")
+    public ResponseEntity<AuctionResponse> update(
+            @RequestBody AuctionUpdateRequest request,
+            @PathVariable Long auctionId
+    ) {
         AuctionResponse response = auctionService.update(request, auctionId);
         return ResponseEntity.ok(response);
     }

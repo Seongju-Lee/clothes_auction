@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-
 public class Auction {
 
     @Id
@@ -27,7 +26,6 @@ public class Auction {
     private Long currentPrice;
 
     @Column(name = "auction_start_time")
-
     private LocalDateTime startTime;
 
     @Column(name = "auction_status")
@@ -43,7 +41,7 @@ public class Auction {
         this.startTime = startTime;
     }
 
-    public Auction update(AuctionBuilder builder) {
+    public Auction change(AuctionBuilder builder) {
         if (builder.getStatus() != null) {
             this.status = builder.getStatus();
         }

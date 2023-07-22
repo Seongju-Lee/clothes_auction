@@ -21,25 +21,34 @@ public class ClothesController {
     private final ClothesService clothesService;
 
     @PostMapping("/clothes")
-    public ResponseEntity<String> save(@RequestBody ClothesRequest request) {
+    public ResponseEntity<String> save(
+            @RequestBody ClothesRequest request
+    ) {
         ClothesResponse response = clothesService.save(request);
         return ResponseEntity.ok("상품이 등록 되었습니다. 상품명: [" + response.name() + "]");
     }
 
     @GetMapping("/clothes")
-    public ResponseEntity<List<ClothesResponse>> findByCategory(@RequestParam("categories") List<ClothesCategory> categories) {
+    public ResponseEntity<List<ClothesResponse>> findByCategory(
+            @RequestParam("categories") List<ClothesCategory> categories
+    ) {
         List<ClothesResponse> manyClothes = clothesService.findByCategories(categories);
         return ResponseEntity.ok(manyClothes);
     }
 
     @DeleteMapping("/clothes/{clothesId}")
-    public ResponseEntity<String> delete(@PathVariable Long clothesId) {
+    public ResponseEntity<String> delete(
+            @PathVariable Long clothesId
+    ) {
         clothesService.delete(clothesId);
         return ResponseEntity.ok("삭제가 완료되었습니다.");
     }
 
-    @PutMapping("/clothes/{clothesId}")
-    public ResponseEntity<Map<String, ClothesResponse>> update(@RequestBody ClothesUpdateRequest request, @PathVariable Long clothesId) {
+    @PatchMapping("/clothes/{clothesId}")
+    public ResponseEntity<Map<String, ClothesResponse>> update(
+            @RequestBody ClothesUpdateRequest request,
+            @PathVariable Long clothesId
+    ) {
         ClothesResponse response = clothesService.update(request, clothesId);
         HashMap<String, ClothesResponse> returnMap = new HashMap<>();
         returnMap.put("clothes", response);

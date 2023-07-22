@@ -41,7 +41,9 @@ public class Clothes {
         this.category = category;
     }
 
-    public Clothes update(ClothesBuilder builder) {
+
+    public Clothes change(ClothesBuilder builder) {
+
         if (builder.getName() != null) {
             this.name = builder.getName();
         }
