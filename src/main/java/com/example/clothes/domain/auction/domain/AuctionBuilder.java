@@ -37,6 +37,6 @@ public class AuctionBuilder {
 
     // 업데이트를 위해 빌더 객체를 생성하는 메서드
     public Auction build(Auction auction) {
-        return auction.update(this);
+        return auction.change(this);
     }
 }

@@ -41,7 +41,7 @@ public class Auction {
         this.startTime = startTime;
     }
 
-    public Auction update(AuctionBuilder builder) {
+    public Auction change(AuctionBuilder builder) {
         if (builder.getStatus() != null) {
             this.status = builder.getStatus();
         }
