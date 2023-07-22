@@ -1,14 +1,12 @@
 package com.example.clothes.domain.item.domain;
 
 import com.example.clothes.domain.user.domain.User;
-import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
-@Builder
 public class Clothes {
 
     @Id
@@ -35,12 +33,27 @@ public class Clothes {
 
     protected Clothes() {}
 
-    public Clothes(Long itemId, User seller, String name, String description, String imgSrc, ClothesCategory category) {
-        this.itemId = itemId;
+    public Clothes(User seller, String name, String description, String imgSrc, ClothesCategory category) {
         this.seller = seller;
         this.name = name;
         this.description = description;
         this.imgSrc = imgSrc;
         this.category = category;
+    }
+
+    public Clothes change(ClothesBuilder builder) {
+        if (builder.getName() != null) {
+            this.name = builder.getName();
+        }
+        if (builder.getDescription() != null) {
+            this.description = builder.getDescription();
+        }
+        if (builder.getImgSrc() != null) {
+            this.imgSrc = builder.getImgSrc();
+        }
+        if (builder.getCategory() != null) {
+            this.category = builder.getCategory();
+        }
+        return this;
     }
 }
