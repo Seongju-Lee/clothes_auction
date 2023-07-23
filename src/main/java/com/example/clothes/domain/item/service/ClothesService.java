@@ -42,10 +42,6 @@ public class ClothesService {
         return ClothesResponse.fromEntity(savedClothes);
     }
 
-    public void delete(Long clothesId) {
-        clothesRepository.deleteById(clothesId);
-    }
-
     public ClothesResponse update(ClothesUpdateRequest request) {
 
         Clothes clothes = clothesRepository.findById(request.clothesId())
@@ -77,7 +73,7 @@ public class ClothesService {
         }
     }
 
-
+    @Transactional(readOnly = true)
     private List<ClothesResponse> findByCategories(List<String> categoryParam) {
 
         List<ClothesCategory> categories = categoryParam.stream()
@@ -87,6 +83,7 @@ public class ClothesService {
         return ClothesResponse.fromEntities(manyClothes);
     }
 
+    @Transactional(readOnly = true)
     private List<ClothesResponse> findBySellerId(Long sellerId) {
         User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 판매자입니다."));
@@ -94,6 +91,7 @@ public class ClothesService {
         return ClothesResponse.fromEntities(manyClothes);
     }
 
+    @Transactional(readOnly = true)
     private List<ClothesResponse> findAll() {
         List<Clothes> clothes = clothesRepository.findAll();
         return ClothesResponse.fromEntities(clothes);
