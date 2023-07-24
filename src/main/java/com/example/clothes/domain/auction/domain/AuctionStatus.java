@@ -16,4 +16,8 @@ public enum AuctionStatus {
     public String getStatus() {
         return status;
     }
+
+    public boolean isCompleted() {
+        return this == COMPLETED;
+    }
 }
