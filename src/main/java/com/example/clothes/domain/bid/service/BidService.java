@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,23 +28,28 @@ public class BidService {
 
     // 입찰 로그 추가
     public BidResponse save(BidRequest request) {
-        User bidder = userRepository.findById(request.bidderId()).get();
-        Auction auction = auctionRepository.findById(request.auctionId()).get();
-        Bid savedBid = bidRepository.save(new Bid(bidder, auction, request.bidPrice(), request.bidTime()));
+        User bidder = userRepository.findById(request.bidderId())
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저입니다"));
+
+        Auction findAuction = auctionRepository.findById(request.auctionId())
+                .filter(auction ->  LocalDateTime.now().isAfter(auction.getStartTime())
+                        && auction.getStatus().isInProgress())
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않거나 종료된 경매입니다."));
+
+        Bid savedBid = bidRepository.save(new Bid(bidder, findAuction, request.bidPrice(), request.bidTime()));
         return BidResponse.fromEntity(savedBid);
     }
 
     public List<BidInfoResponse> findByCriteria(Long bidderId, Long auctionId) {
-        if (auctionId != null && bidderId != null) {
-            return findAll();
-        } else if (auctionId != null) {
-            return findByAuctionId(auctionId);
+        if (bidderId != null && auctionId != null) {
+            throw new IllegalArgumentException("올바르지 못한 형태의 요청입니다.");
         } else if (bidderId != null) {
             return findByBidderId(bidderId);
+        } else if (auctionId != null) {
+            return findByAuctionId(auctionId);
         }
-        throw new IllegalArgumentException("올바르지 못한 형태의 요청입니다.");
+        return findAll();
     }
-
 
     // 모든 입찰 정보 가져오기
     private List<BidInfoResponse> findAll() {
@@ -52,14 +59,16 @@ public class BidService {
 
     // 유저가 입찰한 로그 가져오기
     private List<BidInfoResponse> findByBidderId(Long bidderId) {
-        User bidder = userRepository.findById(bidderId).get();
+        User bidder = userRepository.findById(bidderId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저입니다."));
         List<Bid> bids = bidRepository.findByBidder(bidder);
         return BidInfoResponse.fromEntities(bids);
     }
 
     // 특정 경매의 입찰 로그 모두 가져오기
     private List<BidInfoResponse> findByAuctionId(Long auctionId) {
-        Auction auction = auctionRepository.findById(auctionId).get();
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
         List<Bid> bids = bidRepository.findByAuction(auction);
         return BidInfoResponse.fromEntities(bids);
     }
