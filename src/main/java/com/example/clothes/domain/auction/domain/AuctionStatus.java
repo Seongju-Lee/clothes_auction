@@ -16,4 +16,12 @@ public enum AuctionStatus {
     public String getStatus() {
         return status;
     }
+
+    public boolean isCompleted() {
+        return this == COMPLETED;
+    }
+
+    public boolean isInProgress() {
+        return this == IN_PROGRESS;
+    }
 }

@@ -48,9 +48,4 @@ public class AuctionController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/auctions/{auctionId}")
-    public ResponseEntity<String> delete(@PathVariable Long auctionId) {
-        auctionService.delete(auctionId);
-        return ResponseEntity.ok("삭제가 완료되었습니다.");
-    }
 }

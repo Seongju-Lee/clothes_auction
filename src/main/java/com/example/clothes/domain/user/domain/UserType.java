@@ -10,6 +10,10 @@ public enum UserType {
                 return userType;
             }
         }
-        throw new IllegalArgumentException("존재하지 않는 userType throw from  " + UserType.class.getName());
+        throw new IllegalArgumentException("존재하지 않는 사용자 유형입니다.");
+    }
+
+    public static boolean isSeller(UserType type) {
+        return type == SELLER;
     }
 }

@@ -13,6 +13,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     Auction findByClothes(Clothes clothes);
 
+    List<Auction> findByStatus(AuctionStatus status);
+
     @Query("SELECT a FROM Auction a WHERE a.status in :statuses")
     List<Auction> findByStatuses(@Param("statuses") List<AuctionStatus> statuses);
 }
