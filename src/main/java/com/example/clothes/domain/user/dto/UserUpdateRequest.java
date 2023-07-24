@@ -1,9 +1,8 @@
 package com.example.clothes.domain.user.dto;
 
-import com.example.clothes.domain.user.domain.UserType;
-
 public record UserUpdateRequest(
+        Long userId,
         String name,
         String password,
-        UserType userType) {
+        String userType) {
 }

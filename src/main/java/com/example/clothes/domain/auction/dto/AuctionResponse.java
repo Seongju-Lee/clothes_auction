@@ -19,6 +19,7 @@ public record AuctionResponse(
 ){
     public static AuctionResponse fromEntity(Auction auction) {
         Clothes clothes = auction.getClothes();
+        System.out.println("clothes = " + clothes);
         return new AuctionResponse(clothes.getName(), clothes.getDescription(), clothes.getImgSrc(),
                 auction.getStartPrice(), auction.getCurrentPrice(), auction.getStartTime(), auction.getStatus());
     }
