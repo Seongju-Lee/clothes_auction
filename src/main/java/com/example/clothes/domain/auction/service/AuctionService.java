@@ -52,14 +52,16 @@ public class AuctionService {
 
     @Transactional(readOnly = true)
     public AuctionResponse findByClothesId(Long clothesId) {
-        Clothes clothes = clothesRepository.findById(clothesId).get();
+        Clothes clothes = clothesRepository.findById(clothesId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
         Auction auction = auctionRepository.findByClothes(clothes);
         return AuctionResponse.fromEntity(auction);
     }
 
     @Transactional(readOnly = true)
     public AuctionResponse findById(Long auctionId) {
-        Auction auction = auctionRepository.findById(auctionId).get();
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new NoSuchElementException("존재하는 경매가 아닙니다."));
         return AuctionResponse.fromEntity(auction);
     }
 
@@ -105,12 +107,6 @@ public class AuctionService {
                 .currentPrice(request.currentPrice() != null ? request.currentPrice() : auction.getCurrentPrice())
                 .build();
         auctionRepository.save(updatedAuction);
-    }
-
-    @Transactional
-    public void delete(Long auctionId) {
-        Auction auction = auctionRepository.findById(auctionId).get();
-        auctionRepository.delete(auction);
     }
 
 
