@@ -20,4 +20,8 @@ public enum AuctionStatus {
     public boolean isCompleted() {
         return this == COMPLETED;
     }
+
+    public boolean isInProgress() {
+        return this == IN_PROGRESS;
+    }
 }

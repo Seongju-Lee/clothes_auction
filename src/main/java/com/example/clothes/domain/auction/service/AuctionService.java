@@ -5,6 +5,7 @@ import com.example.clothes.domain.auction.domain.Auction;
 import com.example.clothes.domain.auction.domain.AuctionStatus;
 import com.example.clothes.domain.auction.dto.AuctionRequest;
 import com.example.clothes.domain.auction.dto.AuctionResponse;
+import com.example.clothes.domain.auction.dto.AuctionInProgressUpdateRequest;
 import com.example.clothes.domain.auction.dto.AuctionUpdateRequest;
 import com.example.clothes.domain.bid.dao.BidRepository;
 import com.example.clothes.domain.bid.domain.Bid;
@@ -23,7 +24,6 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class AuctionService {
 
     private final AuctionRepository auctionRepository;
@@ -31,9 +31,14 @@ public class AuctionService {
     private final BidRepository bidRepository;
 
     // 새로운 경매 생성
+    @Transactional
     public AuctionResponse save(AuctionRequest request) {
         Clothes clothes = clothesRepository.findById(request.clothesId())
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
+        if(LocalDateTime.now().isAfter(request.startTime())) {
+            throw new IllegalArgumentException("시작 시간이 올바르지 않습니다.");
+        }
+
         Auction auction = Auction.builder()
                 .clothes(clothes)
                 .startPrice(request.startPrice())
@@ -45,33 +50,32 @@ public class AuctionService {
         return AuctionResponse.fromEntity(savedAuction);
     }
 
-    // 상품 아이디로 경매 조회
+    @Transactional(readOnly = true)
     public AuctionResponse findByClothesId(Long clothesId) {
         Clothes clothes = clothesRepository.findById(clothesId).get();
         Auction auction = auctionRepository.findByClothes(clothes);
         return AuctionResponse.fromEntity(auction);
     }
 
-    // 경매 아이디로 경매 조회
+    @Transactional(readOnly = true)
     public AuctionResponse findById(Long auctionId) {
         Auction auction = auctionRepository.findById(auctionId).get();
         return AuctionResponse.fromEntity(auction);
     }
 
-    // 경매 상태별 조회(시작 전, 진행 중, 낙찰 완료)
+    @Transactional(readOnly = true)
     public List<AuctionResponse> findByStatuses(List<AuctionStatus> statuses) {
         List<Auction> auctions = auctionRepository.findByStatuses(statuses);
         return AuctionResponse.fromEntities(auctions);
     }
 
-    // 모든 경매 조회
+    @Transactional(readOnly = true)
     public List<AuctionResponse> findAll() {
         List<Auction> auctions = auctionRepository.findAll();
         return AuctionResponse.fromEntities(auctions);
     }
 
-
-    // 업데이트
+    @Transactional
     public AuctionResponse update(AuctionUpdateRequest request, Long auctionId) {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
@@ -87,11 +91,28 @@ public class AuctionService {
         return AuctionResponse.fromEntity(auctionRepository.save(updatedAuction));
     }
 
-    // 경매 삭제
+    @Transactional
+    public void update(AuctionInProgressUpdateRequest request) {
+        Auction auction = auctionRepository.findById(request.auctionId())
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        Auction updatedAuction = Auction.builder()
+                .auctionId(auction.getAuctionId())
+                .clothes(auction.getClothes())
+                .startPrice(auction.getStartPrice())
+                .startTime(auction.getStartTime())
+                .status(request.status() != null ? request.status() : auction.getStatus())
+                .currentPrice(request.currentPrice() != null ? request.currentPrice() : auction.getCurrentPrice())
+                .build();
+        auctionRepository.save(updatedAuction);
+    }
+
+    @Transactional
     public void delete(Long auctionId) {
         Auction auction = auctionRepository.findById(auctionId).get();
         auctionRepository.delete(auction);
     }
+
 
     @Scheduled(cron = "0 * * * * *")
     public void AuctionStartScheduler() {
@@ -100,6 +121,7 @@ public class AuctionService {
         for (Auction auction : auctions) {
             LocalDateTime auctionStartTime = auction.getStartTime();
             if (currentTime.isAfter(auctionStartTime)) {
+                update(new AuctionInProgressUpdateRequest(auction.getAuctionId(), AuctionStatus.IN_PROGRESS, null));
                 startAuction(auction);
             }
         }
@@ -108,14 +130,11 @@ public class AuctionService {
     @Async
     public void startAuction(Auction auction) {
 
-        update( // 경매 상태 낙찰로 변경
-                new AuctionUpdateRequest(null, null, AuctionStatus.IN_PROGRESS, null),
-                auction.getAuctionId()
-        );
         AuctionStatus status = auction.getStatus();
+        long currentPrice = auction.getCurrentPrice();
+
         while (!status.isCompleted()) {
 
-            long currentPrice = auction.getCurrentPrice();
             try {
                 Thread.sleep(3000);
                 List<Bid> bidByAuction = bidRepository.findHighestBidPriceByCurrentAuction(auction);
@@ -124,16 +143,16 @@ public class AuctionService {
                 if (currentPrice == highestBidPrice) {
                     status = AuctionStatus.COMPLETED;
                 } else {
-                    update(new AuctionUpdateRequest(null, null, null, highestBidPrice),
-                            auction.getAuctionId());
+                    currentPrice = highestBidPrice;
+                    update(new AuctionInProgressUpdateRequest(auction.getAuctionId(), null, currentPrice));
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         update( // 경매 상태 낙찰로 변경
-                new AuctionUpdateRequest(null, null, AuctionStatus.COMPLETED, null),
-                auction.getAuctionId()
+                new AuctionInProgressUpdateRequest(auction.getAuctionId(), AuctionStatus.COMPLETED, null)
         );
+
     }
 }
